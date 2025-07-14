@@ -23,7 +23,7 @@ function cancelButtonColor() {
 }
 
 function clickedButtonsCollor() {
-    return "#f25e5e"
+    return "#f7e425"
 }
 
 function clickedCancelButtonColor() {

@@ -1,4 +1,4 @@
-import QtQuick 2.6
+import QtQuick 2.7
 import QtQuick.Window 2.2
 import "utils.js" as Utils
 
@@ -62,8 +62,6 @@ Window {
         id: logic
     }
 
-    // State-Machine
-
     // Upper Background
     Rectangle {
         id: upperBackground
@@ -72,7 +70,7 @@ Window {
         anchors.top: parent.top
         height: ( ( parent.height * 28 ) / 600)
         color: Utils.upperBackgroundColor()
-    }
+    } // Upper Background
 
     // Lower Background
     Rectangle {
@@ -81,7 +79,7 @@ Window {
         anchors.right: parent.right
         anchors.bottom: parent.bottom
         color: Utils.lowerBackgroundColor()
-    }
+    } // Lower Background
 
     // GUI
     Rectangle {
@@ -123,7 +121,7 @@ Window {
             font.family: Utils.fontFamily()
             // Text Size-Mode
             fontSizeMode: Text.Fit
-        }
+        } // Result-Text (Label)
 
         // FirstArgument-Text (Label)
         Text {
@@ -149,8 +147,9 @@ Window {
             font.family: Utils.fontFamily()
             // Text Size-Mode
             fontSizeMode: Text.Fit
-        }
-    }
+        } // FirstArgument-Text (Label)
+
+    } // GUI
 
     // Buttons
     Item {
@@ -161,8 +160,6 @@ Window {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-
-
 
         //Layout
         Grid {
@@ -390,17 +387,76 @@ Window {
             }
             // =
             CalculatorButton {
-                id: btn_result
+                id: result_btn
                 text: "="
                 buttonColor: Utils.mathButtonsCollor()
                 textColor: Utils.lightSimbolsColor()
+                // Signals
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     inputText.text = logic.getOutput( );
                     resultText.text = logic.doMath( );
                 } // onClicked
-            }
-        }
-    }
+
+
+                // Secret panel open sequence
+                signal pressAndHold()
+
+                // Hold timer
+                Timer {
+                    // ID
+                    id: longPressTimer
+                    // Timer
+                    interval: 4000
+                    repeat: false
+                    running: false
+                    // Signals
+                    onTriggered: {
+                        result_btn.pressAndHold();
+                        parent.color = "#000000";
+                        logic.resetLogic( );
+                        inputText.text = "0";
+                        resultText.text = "0";
+                        codeReader.start();
+                    }
+                } // Hold timer
+
+                onPressedChanged: {
+                    if ( pressed ) {
+                        longPressTimer.running = true;
+                    } else {
+                        longPressTimer.running = false;
+                    }
+                } // onPressedChanged
+
+            } // =
+
+        } //Layout
+
+    } // Buttons
+
+    // Code Reader
+    Timer {
+        // ID
+        id: codeReader
+        // Timer
+        interval: 5000
+        running: false
+        repeat: false
+        // Signals
+        onTriggered: secretPanel.visible = (resultText.text == "123") ? true : false
+    } // Code Reader
+
+    // SecretPanel
+    SecretPanel {
+        // ID
+        id: secretPanel
+        // Size
+        width: parent.width / 2
+        height: parent.height / 2
+        // Anchors
+        anchors.verticalCenter: parent.verticalCenter
+        anchors.horizontalCenter: parent.horizontalCenter
+    } // SecretPanel
 
 } // Main Window
