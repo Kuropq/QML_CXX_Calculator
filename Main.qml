@@ -84,7 +84,7 @@ Window {
     // GUI
     Rectangle {
         // ID
-        id: resultBox
+        id: box
         // Anchors
         anchors.left: parent.left
         anchors.right: parent.right
@@ -156,7 +156,7 @@ Window {
         // ID
         id: buttons
         // Anchors
-        anchors.top: resultBox.bottom
+        anchors.top: box.bottom
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
@@ -165,13 +165,13 @@ Window {
         Grid {
             // Anchors
             anchors.fill: parent
-            anchors.topMargin:  ( ( mainWindow.height - resultBox.height ) / rows ) - 60
+            anchors.topMargin:  ( ( mainWindow.height - box.height ) / rows ) - 60
             anchors.leftMargin: ( ( mainWindow.width / columns ) - 60 ) / 2
             // Positioners
             columns: 4
             rows: 6
             columnSpacing: ( mainWindow.width / columns ) - 60
-            rowSpacing: ( ( mainWindow.height - resultBox.height ) / rows ) - ( 60 * 5 / 6 )
+            rowSpacing: ( ( mainWindow.height - box.height ) / rows ) - ( 60 * 5 / 6 )
             // Erase
             CalculatorButton {
                 id: erase_Btn
@@ -452,11 +452,8 @@ Window {
         // ID
         id: secretPanel
         // Size
-        width: parent.width / 2
-        height: parent.height / 2
-        // Anchors
-        anchors.verticalCenter: parent.verticalCenter
-        anchors.horizontalCenter: parent.horizontalCenter
+        width: mainWindow.width
+        height: mainWindow.height
     } // SecretPanel
 
 } // Main Window

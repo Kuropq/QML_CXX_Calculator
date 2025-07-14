@@ -38,14 +38,14 @@ function fontFamily() {
     return "Open Sans Semibold"
 }
 
-function answerText0Size() {
-    return "50/60 0.5px"
+function secretBorder() {
+    return "#666666"
 }
 
-function inputText0Size() {
-    return "20/30 0.5px"
+function secretBackground() {
+    return "#b0d1d8"
 }
 
-function buttonsText0Size() {
-    return "24/30 1px"
+function secretButton() {
+    return "#04bfad"
 }
