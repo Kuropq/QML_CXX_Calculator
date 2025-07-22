@@ -5,6 +5,8 @@
 #include <QString>
 #include <QObject>
 
+// Include
+#include <stack>
 
 //CLogic handles calculator logic
 class CLogic : public QObject {
@@ -15,30 +17,25 @@ class CLogic : public QObject {
 private:
 
     // CONSTANTS
-    /** NONE **/
-    static const unsigned char NONE_OPERATION_TYPE = 0;
 
     /** + **/
-    static const unsigned char SUM_OPERATION_TYPE = 1;
+    static const unsigned char SUM_OPERATION_TYPE = 0;
 
     /** - **/
-    static const unsigned char SUB_OPERATION_TYPE = 2;
+    static const unsigned char SUB_OPERATION_TYPE = 1;
 
     /** / **/
-    static const unsigned char DIV_OPERATION_TYPE = 3;
+    static const unsigned char DIV_OPERATION_TYPE = 2;
 
     /** * **/
-    static const unsigned char MUL_OPERATION_TYPE = 4;
-
-    /** sqrt **/
-    static const unsigned char SQRT_OPERATION_TYPE = 5;
+    static const unsigned char MUL_OPERATION_TYPE = 3;
 
     // FIELDS
     /** Stored Value. **/
     QString mStoredValue;
 
     /** First argument. **/
-    QString mLeftArg;
+    std::vector <QString> mLeftArg;
 
     /** Right Argument **/
     QString mRightArg;
@@ -47,9 +44,33 @@ private:
     QString mOutput;
 
     /** Operation-Type **/
-    unsigned char mOperationType;
+    std::vector <QChar> mOperationType;
 
     // METHODS
+    /**
+      * Updates Output-string.
+      *
+      * @thread_safety - not thread-safe.
+      * @throws - no exceptions.
+    **/
+    bool isOperator(QChar character) noexcept;
+
+    /**
+      * Updates Output-string.
+      *
+      * @thread_safety - not thread-safe.
+      * @throws - no exceptions.
+    **/
+    QString countOneGroup( QString initialText ) noexcept;
+
+    /**
+      * Updates Output-string.
+      *
+      * @thread_safety - not thread-safe.
+      * @throws - no exceptions.
+    **/
+    bool isOperand(QChar character) noexcept;
+
     /**
       * Updates Output-string.
       *
@@ -145,7 +166,7 @@ public:
       * @returns - output-string to be displayed.
       * @throws - no exceptions.
     **/
-    Q_INVOKABLE QString onRemoveLastNumber( ) noexcept;
+    Q_INVOKABLE QString onPutBrackets( ) noexcept;
 
     /**
       * Called when last argument-number requested (erase, chop).
@@ -173,14 +194,6 @@ public:
       * @throws - no exceptions.
     **/
     Q_INVOKABLE QString doMath( ) noexcept;
-
-    /**
-      * Resets stored values.
-      *
-      * @thread_safety - not thread-safe.
-      * @throws - no exceptions.
-    **/
-    Q_INVOKABLE void resetMemory( ) noexcept;
 
     /**
       * Reset Calculator Logic State.

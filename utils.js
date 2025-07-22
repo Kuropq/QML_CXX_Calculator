@@ -35,7 +35,7 @@ function lightSimbolsColor() {
 }
 
 function fontFamily() {
-    return "Open Sans Semibold"
+    return "Open Sans"
 }
 
 function secretBorder() {

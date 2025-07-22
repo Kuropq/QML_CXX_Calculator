@@ -97,6 +97,8 @@ Window {
         // Color
         color: Utils.upperBackgroundColor()
 
+        FontLoader { id: sansFamili; source: "C:\\develop\\QT\\SimplrCalculator\\OpenSans-VariableFont_wdth,wght.ttf" }
+
         // Result-Text (Label)
         Text {
             // ID
@@ -106,7 +108,7 @@ Window {
             anchors.bottom: parent.bottom
             anchors.leftMargin: mainWindow.width / 9
             anchors.rightMargin: mainWindow.width / 9
-            anchors.bottomMargin: mainWindow.height / 40
+            anchors.bottomMargin: mainWindow.height / 45
             // Text-Alignment
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
@@ -114,16 +116,18 @@ Window {
             text: qsTr( "0" )
             // Color
             color: Utils.lightSimbolsColor()
-            // Text0Size
-            font.pixelSize: 51
-                //Utils.answerText0Size();
-            // Font-Style
-            font.family: Utils.fontFamily()
-            // Text Size-Mode
-            fontSizeMode: Text.Fit
+            // Font
+            font.family: sansFamili.font.family
+            font.styleName: "Normal"
+            font.weight: 600
+            font.pixelSize: 50
+            font.letterSpacing: 0.5
+            lineHeight: 60
+            height: 60
         } // Result-Text (Label)
 
-        // FirstArgument-Text (Label)
+
+        // Arguments-Text (Label)
         Text {
             // ID
             id: inputText
@@ -132,7 +136,7 @@ Window {
             anchors.bottom: resultText.top
             anchors.leftMargin: mainWindow.width / 9
             anchors.rightMargin: mainWindow.width / 9
-            anchors.bottomMargin: mainWindow.height / 64
+            anchors.bottomMargin: mainWindow.height / 75
             // Text-Alignment
             horizontalAlignment: Text.AlignRight
             verticalAlignment: Text.AlignVCenter
@@ -140,14 +144,15 @@ Window {
             text: qsTr( "0" )
             // Color
             color: Utils.lightSimbolsColor()
-            // Text0Size
-            font.pixelSize: 30
-                //Utils.answerText0Size();
-            // Font-Style
-            font.family: Utils.fontFamily()
-            // Text Size-Mode
-            fontSizeMode: Text.Fit
-        } // FirstArgument-Text (Label)
+            // Font
+            font.family: sansFamili.font.family
+            font.styleName: "Normal"
+            font.weight: 600
+            font.pixelSize: 20
+            font.letterSpacing: 0.5
+            lineHeight: 30
+            height: 30
+        } // Arguments-Text (Label)
 
     } // GUI
 
@@ -172,58 +177,79 @@ Window {
             rows: 6
             columnSpacing: ( mainWindow.width / columns ) - 60
             rowSpacing: ( ( mainWindow.height - box.height ) / rows ) - ( 60 * 5 / 6 )
-            // Erase
+            // Brackets
             CalculatorButton {
-                id: erase_Btn
-                text: "<--"
-                buttonColor: Utils.mathButtonsCollor()
-                textColor: Utils.lightSimbolsColor()
+                id: brackets_Btn
+                buttonColor: Utils.mathButtonsCollor( )
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height / 2
+                    width: parent.width / 2
+                    source: "icons/bkt.png"
+                }
                 onClicked: {
-                    color = Utils.clickedButtonsCollor();
-                    resultText.text = logic.onRemoveLastNumber( );
-
+                    color = Utils.clickedButtonsCollor( );
+                    inputText.text = logic.onPutBrackets( );
+                    resultText.text = "0";
                 } // onClicked
             }
-            // sqrt
+            // +/-
             CalculatorButton {
                 id: reverse_Btn
-                text: "+/-"
-                buttonColor: Utils.mathButtonsCollor()
-                textColor: Utils.lightSimbolsColor()
+                buttonColor: Utils.mathButtonsCollor( )
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height / 2
+                    width: parent.width / 2
+                    source: "icons/pom.png"
+                }
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onReverseSign( );
                 } // onClicked
             }
-            // C
+            // %
             CalculatorButton {
                 id: procent_Btn
-                text: "%"
-                buttonColor: Utils.mathButtonsCollor()
-                textColor: Utils.lightSimbolsColor()
+                buttonColor: Utils.mathButtonsCollor( )
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height / 2
+                    width: parent.width / 2
+                    source: "icons/per.png"
+                }
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
-                    inputText.text = logic.onNumberInput("%");
+                    inputText.text = logic.onNumberInput( "%" );
                     resultText.text = logic.onTakeProcent( );
                 } // onClicked
             }
             // / (÷)
             CalculatorButton {
                 id: btn_div
-                text: "÷"
-                buttonColor: Utils.mathButtonsCollor()
-                textColor: Utils.lightSimbolsColor()
+                buttonColor: Utils.mathButtonsCollor( )
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height / 2
+                    width: parent.width / 2
+                    source: "icons/div.png"
+                }
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     inputText.text = logic.setOperationType( "/" );
+                    resultText.text = "0";
                 } // onClicked
             }
             // 7
             CalculatorButton {
                 id: btn_7
                 text: "7"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "7" );
@@ -233,8 +259,8 @@ Window {
             CalculatorButton {
                 id: btn_8
                 text: "8"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "8" );
@@ -244,8 +270,8 @@ Window {
             CalculatorButton {
                 id: btn_9
                 text: "9"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "9" );
@@ -254,20 +280,26 @@ Window {
             // * (×)
             CalculatorButton {
                 id: btn_mult
-                text: "×"
-                buttonColor: Utils.mathButtonsCollor()
-                textColor: Utils.lightSimbolsColor()
+                buttonColor: Utils.mathButtonsCollor( )
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height / 2
+                    width: parent.width / 2
+                    source: "icons/mul.png"
+                }
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     inputText.text = logic.setOperationType( "*" );
+                    resultText.text = "0";
                 } // onClicked
             }
             // 4
             CalculatorButton {
                 id: btn_4
                 text: "4"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "4" );
@@ -277,8 +309,8 @@ Window {
             CalculatorButton {
                 id: btn_5
                 text: "5"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "5" );
@@ -288,8 +320,8 @@ Window {
             CalculatorButton {
                 id: btn_6
                 text: "6"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "6" );
@@ -298,20 +330,26 @@ Window {
             // -
             CalculatorButton {
                 id: btn_sub
-                text: "-"
-                buttonColor: Utils.mathButtonsCollor()
-                textColor: Utils.lightSimbolsColor()
+                buttonColor: Utils.mathButtonsCollor( )
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height / 2
+                    width: parent.width / 2
+                    source: "icons/sub.png"
+                }
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     inputText.text = logic.setOperationType( "-" );
+                    resultText.text = "0";
                 } // onClicked
             }
             // 1
             CalculatorButton {
                 id: btn_1
                 text: "1"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "1" );
@@ -321,8 +359,8 @@ Window {
             CalculatorButton {
                 id: btn_2
                 text: "2"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "2" );
@@ -332,8 +370,8 @@ Window {
             CalculatorButton {
                 id: btn_3
                 text: "3"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "3" );
@@ -342,22 +380,28 @@ Window {
             // +
             CalculatorButton {
                 id: btn_sum
-                text: "+"
-                buttonColor: Utils.mathButtonsCollor()
-                textColor: Utils.lightSimbolsColor()
+                buttonColor: Utils.mathButtonsCollor( )
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height / 2
+                    width: parent.width / 2
+                    source: "icons/sum.png"
+                }
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     inputText.text = logic.setOperationType( "+" );
+                    resultText.text = "0";
                 } // onClicked
             }
             // C
             CalculatorButton {
                 id: clear_Btn
                 text: "C"
-                buttonColor: Utils.cancelButtonColor()
-                textColor: Utils.lightSimbolsColor()
+                buttonColor: Utils.cancelButtonColor( )
+                textColor: Utils.lightSimbolsColor( )
                 onClicked: {
-                    color = Utils.clickedCancelButtonColor();
+                    color = Utils.clickedCancelButtonColor( );
                     logic.resetLogic( );
                     inputText.text = "0";
                     resultText.text = "0";
@@ -367,8 +411,8 @@ Window {
             CalculatorButton {
                 id: btn_0
                 text: "0"
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onNumberInput( "0" );
@@ -378,8 +422,8 @@ Window {
             CalculatorButton {
                 id: btn_dot
                 text: "."
-                buttonColor: Utils.numberButtonsColor()
-                textColor: Utils.lowerBackgroundColor()
+                buttonColor: Utils.numberButtonsColor( )
+                textColor: Utils.lowerBackgroundColor( )
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     resultText.text = logic.onDot( );
@@ -388,19 +432,22 @@ Window {
             // =
             CalculatorButton {
                 id: result_btn
-                text: "="
-                buttonColor: Utils.mathButtonsCollor()
-                textColor: Utils.lightSimbolsColor()
-                // Signals
+                buttonColor: Utils.mathButtonsCollor( )
+                Image {
+                    anchors.verticalCenter: parent.verticalCenter
+                    anchors.horizontalCenter: parent.horizontalCenter
+                    height: parent.height / 2
+                    width: parent.width / 2
+                    source: "icons/equ.png"
+                }
                 onClicked: {
                     color = Utils.clickedButtonsCollor( );
                     inputText.text = logic.getOutput( );
                     resultText.text = logic.doMath( );
-                } // onClicked
-
+                }
 
                 // Secret panel open sequence
-                signal pressAndHold()
+                signal pressAndHold( )
 
                 // Hold timer
                 Timer {
@@ -412,12 +459,12 @@ Window {
                     running: false
                     // Signals
                     onTriggered: {
-                        result_btn.pressAndHold();
+                        result_btn.pressAndHold( );
                         parent.color = "#000000";
                         logic.resetLogic( );
                         inputText.text = "0";
                         resultText.text = "0";
-                        codeReader.start();
+                        codeReader.start( );
                     }
                 } // Hold timer
 

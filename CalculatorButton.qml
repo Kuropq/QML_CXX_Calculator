@@ -19,6 +19,8 @@ Rectangle {
     signal clicked
     property bool pressed: mouse.pressed
 
+    FontLoader { id: sansFamili; source: "C:\\develop\\QT\\SimplrCalculator\\OpenSans-VariableFont_wdth,wght.ttf" }
+
     // Button text
     Text {
         // ID
@@ -27,14 +29,18 @@ Rectangle {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.top: parent.top
         anchors.bottom: parent.bottom
-        // Size
-        height: parent.textHeight
-        font.pixelSize: parent.textHeight
+        // Text-Aligment
         horizontalAlignment: Text.AlignHCenter
         verticalAlignment: Text.AlignVCenter
-        // Text
+        // Color
         color: textColor
-        font.family: Utils.fontFamily()
+        // Font
+        font.family: sansFamili.font.family
+        font.styleName: "Normal"
+        font.weight: 600
+        font.pixelSize: 24
+        font.letterSpacing: 1
+        lineHeight: 30
     }
 
     // Click timer

@@ -24,6 +24,9 @@ qt_add_qml_module(appSimplrCalculator
         SOURCES CLogic.h
         QML_FILES
         QML_FILES SecretPanel.qml
+        RESOURCES
+        RESOURCES icons/sum.png
+        RESOURCES icons/bkt.png icons/div.png icons/equ.png icons/mul.png icons/per.png icons/pom.png icons/sub.png icons/sum.png
 )
 
 # Qt for iOS sets MACOSX_BUNDLE_GUI_IDENTIFIER automatically since Qt 6.1.

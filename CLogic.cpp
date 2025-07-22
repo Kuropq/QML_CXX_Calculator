@@ -3,9 +3,6 @@
 #include "CLogic.h"
 #endif // !CLOGIC_H
 
-// Math
-#include <QtMath>
-
 #ifdef QT_DEBUG // DEBUG
 #include <exception>
 #endif // DEBUG
@@ -14,12 +11,11 @@
 CLogic::CLogic( QObject *const qParent ) noexcept
     : QObject ( qParent ),
     mStoredValue( "" ),
-    mLeftArg( "" ),
+    mLeftArg{ },
     mRightArg( "" ),
-    mOutput( "0" ),
-    mOperationType( NONE_OPERATION_TYPE )
-{
-}
+    mOutput( "" ),
+    mOperationType{ }
+{ }
 
 // DESTRUCTOR
 CLogic::~CLogic( ) noexcept = default;
@@ -31,65 +27,83 @@ QString CLogic::setOperationType( const QString pType ) noexcept {
     qDebug( "CLogic::setOperationType" );
 #endif // DEBUG
 
-    // Cancel, if Arguments are empty.
-    if ( mLeftArg.size( ) < 1 && mRightArg.size( ) < 1 )
+    if ( mRightArg.size( ) != 0 || ( mOutput.isEmpty() == false && mOutput.back() != ")" ) ) {
+        // Set type
+        if ( pType == "-" ) {
+            mOperationType.push_back( QChar::fromLatin1( SUB_OPERATION_TYPE ) );
+        } else if ( pType == "+" ) {
+            mOperationType.push_back( QChar::fromLatin1( SUM_OPERATION_TYPE ) );
+        } else if ( pType == "/" ) {
+            mOperationType.push_back( QChar::fromLatin1( DIV_OPERATION_TYPE ) );
+        } else if ( pType == "*" ) {
+            mOperationType.push_back( QChar::fromLatin1( MUL_OPERATION_TYPE ) );
+        }
+
+        // Update Output
+        onUpdateOutput( );
+        // Return output
+        return( mOutput );
+    }
+
+    // Cancel, if Argument is empty.
+    if ( mRightArg.size( ) == 0 )
+        if ( mOutput.size( ) == 0 )
+            return "0";
         return( mOutput );
 
-    // Set type
-    if ( pType == "-" )
-        mOperationType = SUB_OPERATION_TYPE;
-    else if ( pType == "+" )
-        mOperationType = SUM_OPERATION_TYPE;
-    else if ( pType == "/" )
-        mOperationType = DIV_OPERATION_TYPE;
-    else if ( pType == "*" )
-        mOperationType = MUL_OPERATION_TYPE;
-
-    // Switch Arguments
-    mLeftArg = mRightArg; // Copy-Construct
-    mRightArg = ""; // Clear/Reset
-
-    // Update Output
-    onUpdateOutput( );
-
-    // Return output
-    return( mOutput );
-
+    return "0";
 }
 
-QString CLogic::getOutput( ) noexcept { return( mOutput ); }
+QString CLogic::getOutput( ) noexcept {
+    onUpdateOutput();
+    return( mOutput );
+}
 
-// METHODS
-/**
-  * Updates Output-string.
-  *
-  * @thread_safety - not thread-safe.
-  * @throws - no exceptions.
-**/
+// PRIVATE METHODS
+bool CLogic::isOperator(QChar character) noexcept {
+    if (character == '+' || character == '-' || character == '*' || character == '/') {
+        return true;
+    }
+    return false;
+}
+
+bool CLogic::isOperand(QChar character) noexcept {
+    if (!isOperator(character) && character != '(' && character != ')') {
+        return true;
+    }
+    return false;
+}
 
 void CLogic::onUpdateOutput( ) noexcept {
 
-    // Reset Output-string.
-    mOutput = "";
+    // Switch Arguments
+    mLeftArg.push_back( mRightArg );
+    mRightArg = "";
 
-    // Left Argument
-    if ( mLeftArg.size( ) > 0 )
-        mOutput += mLeftArg;
+    // One argument
+    if ( mLeftArg.size( ) == 1 && mOperationType.size() == 0) {
 
-    // Operation-Type
-    if ( mOperationType != NONE_OPERATION_TYPE ) {
+        mOutput = mLeftArg[0];
+    }
 
-        // Append operation-symbol.
-        switch( mOperationType ) {
+    // Several arguments
+    if ( mOperationType.size() > 0 && mLeftArg.size() > 0 && ( mLeftArg.size() - mOperationType.size() ) < 2 ) {
+
+        // Reset Output-string.
+        mOutput = "";
+
+        // Append Left Arguments and operation-symbols
+        for ( int i{ 0 }; i < mOperationType.size(); i++ ) {
+            mOutput += mLeftArg[ i ];
+
+            // Append operation-symbol
+            switch( mOperationType[ i ].unicode() ) {
             case DIV_OPERATION_TYPE: {
                 mOutput += " / ";
                 break;
             }
             case MUL_OPERATION_TYPE: {
                 mOutput += " * ";
-                break;
-            }
-            case SQRT_OPERATION_TYPE: {
                 break;
             }
             case SUB_OPERATION_TYPE: {
@@ -101,19 +115,39 @@ void CLogic::onUpdateOutput( ) noexcept {
                 mOutput += " + ";
                 break;
             }
-        }
+            } // Append operation-symbol
 
-    } /// Operation-Type
+        } // Append Left Arguments and operation-symbols
 
-    // Right Argument
-    if ( mRightArg.size( ) > 0 )
-        mOutput += mRightArg;
+        // Append last Argument
+        if ( ( mLeftArg.size() - mOperationType.size() ) == 1 ) {
+            mOutput += mLeftArg.back();
+        } // Append last Argument
+
+    } // Several arguments
 
     // 0
-    if ( mOutput.size( ) < 1 || mOutput == "-" )
-        mOutput = "0";
+    if ( mOutput == "-" ||  mOutput == "-0" )
+        mOutput = "";
+    if ( mRightArg == "-" ||  mOutput == "-0" )
+        mRightArg = "";
 
 }
+
+void CLogic::onCalculationDone( ) noexcept {
+
+    // Reset Left-Argument.
+    mLeftArg.clear( );
+
+    // Reset Right-Argument
+    mOutput = mRightArg;
+
+    // Reset Operation-Type.
+    mOperationType.clear();
+
+}
+
+// PUBLIC METHODS
 
 Q_INVOKABLE QString CLogic::onDot( ) noexcept {
 
@@ -146,18 +180,7 @@ Q_INVOKABLE QString CLogic::onDot( ) noexcept {
 
 }
 
-void CLogic::onCalculationDone( ) noexcept {
 
-    // Reset Left-Argument.
-    mLeftArg.clear( );
-
-    // Reset Right-Argument
-    mRightArg = mOutput;
-
-    // Reset Operation-Type.
-    mOperationType = NONE_OPERATION_TYPE;
-
-} /// CLogic::onCalculationDone
 
 QString CLogic::onKeyboardInput( const QString pValue ) noexcept {
 
@@ -175,7 +198,7 @@ QString CLogic::onKeyboardInput( const QString pValue ) noexcept {
     // Return Output
     return( mOutput );
 
-} /// CLogic::onKeyboardInput
+}
 
 QString CLogic::onNumberInput( const QString pVal ) noexcept {
 
@@ -184,32 +207,31 @@ QString CLogic::onNumberInput( const QString pVal ) noexcept {
 #endif // DEBUG
 
     // Append
+    if ( pVal == "0" && mRightArg == "0" )
+        return( mRightArg );
+    else if ( mRightArg == "0" )
+        mRightArg.chop( 1 );
     mRightArg += pVal;
-
-    // Update output
-    onUpdateOutput( );
 
     // Return Output
     return( mRightArg );
 
 }
 
-QString CLogic::onRemoveLastNumber( ) noexcept {
+QString CLogic::onPutBrackets( ) noexcept {
 
-    // Cancel, if nothing to remove
-    if ( mRightArg.size( ) == 0 )
+    // Cancel, if nothing to put in brackets
+    if ( mRightArg.size( ) == 0 || mOperationType.size() == 0 )
         return( mOutput );
 
 #ifdef QT_DEBUG // DEBUG
-    qDebug( "CLogic::onRemoveLastNumber" );
+    qDebug( "CLogic::onPutBrackets" );
 #endif // DEBUG
 
-    // Remove Last-symbol
-    mRightArg.chop( 1 );
+    mLeftArg.back() = "( " + mLeftArg.back();
+    mRightArg += " )";
 
-    // Update output
-    mOutput.chop( 1 );
-    onUpdateOutput( );
+    onUpdateOutput();
 
     // Return Output
     return( mOutput );
@@ -268,98 +290,111 @@ QString CLogic::onTakeProcent( ) noexcept {
 
 }
 
-QString CLogic::doMath( ) noexcept {
-
-    // Cancel, if no action required.
-    if ( mOperationType == NONE_OPERATION_TYPE || mLeftArg.size( ) < 1 )
-        return( mOutput );
-
-    // Convert Left-Argument to number.
-    const double arg1_d( mLeftArg.toDouble(  ) );
-
-    // Convert Right-Argument to number.
-    const double arg2_d( mRightArg.toDouble( ) );
-
-    // Calculate
-    switch( mOperationType ) {
-
-        case SUB_OPERATION_TYPE: {
-
-            // Sub
-            const auto result_( arg1_d - arg2_d );
-
-            // Set Output
-            mOutput = QString::number( result_ );
-
-            // Reset
-            onCalculationDone( );
-
-            // Stop
-            break;
-
+QString CLogic::countOneGroup( QString initialText ) noexcept {
+    mOperationType.clear();
+    bool isOpeningBracket = false;
+    QString firstArgTmp{ "" };
+    QString secondArgTmp{ "" };
+    QString outputText{ initialText };
+    int operationTypes{ 2 };
+    while ( true ) {
+        initialText = outputText;
+        outputText = "";
+        for ( int i{ 0 }; i < initialText.size(); i++ ) {
+            if ( initialText[ i ] == ' ' ) { } else
+            if ( initialText[ i ] == '(' ) {
+                QString tmp;
+                while ( initialText[ i ] != ')' ) {
+                    i++;
+                    tmp += initialText[ i ];
+                }
+                tmp.chop( 1 );
+                if ( firstArgTmp == "" )
+                    firstArgTmp = countOneGroup( tmp );
+                else
+                    secondArgTmp = countOneGroup( tmp );
+            } else if ( isOperand( initialText[ i ] ) && mOperationType.size() == 0) { // первый аргумент
+                firstArgTmp += initialText[ i ];
+            } else if ( isOperand( initialText[ i ] ) && mOperationType.size() != 0 ) { // второй аргумент
+                secondArgTmp += initialText[ i ];
+            } else if ( isOperator( initialText[ i ] ) && mOperationType.size() == 0 ) { // оператор после первого аргумента
+                switch( operationTypes ) {
+                    case 2: { // умножить или делить
+                        if ( initialText[ i ] == '*' ) {
+                            mOperationType.push_back( QChar::fromLatin1( MUL_OPERATION_TYPE ) );
+                        } else if ( initialText[ i ] == '/' ) {
+                            mOperationType.push_back( QChar::fromLatin1( DIV_OPERATION_TYPE ) );
+                        } else { // сложение или вычетание остается на следующий проход
+                            outputText += firstArgTmp + initialText[ i ];
+                            firstArgTmp = "";
+                            mOperationType.clear();
+                        }
+                        break;
+                    }
+                    case 1: { // сложить или вычесть
+                        if ( initialText[ i ] == '+' ) {
+                            mOperationType.push_back( QChar::fromLatin1( SUM_OPERATION_TYPE ) );
+                        } else if ( initialText[ i ] == '-' ) { // проверка на вычитание или отрицательное число
+                            if ( isOpeningBracket ) { // число
+                                firstArgTmp += initialText[ i ];
+                                isOpeningBracket = false;
+                            } else { // вычитание
+                                mOperationType.push_back( QChar::fromLatin1( SUB_OPERATION_TYPE ) );
+                            }
+                        }
+                        break;
+                    }
+                }
+            }
+            if ( secondArgTmp.size( ) != 0 && ( isOperator( initialText[ i ] ) || initialText[ i ] == initialText.back() ) ) { // оператор после второго аргумента
+                switch( mOperationType[ 0 ].unicode() ) {
+                case DIV_OPERATION_TYPE: {
+                    firstArgTmp = QString::number( firstArgTmp.toDouble() / secondArgTmp.toDouble() );
+                    secondArgTmp = "";
+                    break;
+                }
+                case MUL_OPERATION_TYPE: {
+                    firstArgTmp = QString::number( firstArgTmp.toDouble() * secondArgTmp.toDouble() );
+                    secondArgTmp = "";
+                    break;
+                }
+                case SUB_OPERATION_TYPE: {
+                    firstArgTmp = QString::number( firstArgTmp.toDouble() - secondArgTmp.toDouble() );
+                    secondArgTmp = "";
+                    break;
+                }
+                default:
+                case SUM_OPERATION_TYPE: {
+                    firstArgTmp = QString::number( firstArgTmp.toDouble() + secondArgTmp.toDouble() );
+                    secondArgTmp = "";
+                    break;
+                }
+                }
+                mOperationType.clear();
+            }
         }
-        case MUL_OPERATION_TYPE: {
-
-            // Mult
-            const auto result_( arg1_d * arg2_d );
-
-            // Set Output
-            mOutput = QString::number( result_ );
-
-            // Reset
-            onCalculationDone( );
-
-            // Stop
+        outputText += firstArgTmp;
+        firstArgTmp = "";
+        operationTypes --;
+        if (operationTypes == 0)
             break;
-
-        }
-        case DIV_OPERATION_TYPE: {
-
-            // Div
-            const auto result_( arg1_d / arg2_d );
-
-            // Set Output
-            mOutput = QString::number( result_ );
-
-            // Reset
-            onCalculationDone( );
-
-            // Stop
-            break;
-
-        }
-        case SUM_OPERATION_TYPE:
-        default: {
-
-            // Sum
-            const auto result_( arg1_d + arg2_d );
-
-            // Set Output
-            mOutput = QString::number( result_ );
-
-            // Reset
-            onCalculationDone( );
-
-            // Stop
-            break;
-
-        }
-    } /// Calculate
-
-    // Return Output
-    return( mOutput );
-
+    }
+    return outputText;
 }
 
-void CLogic::resetMemory( ) noexcept {
+QString CLogic::doMath( ) noexcept {
 
-#ifdef QT_DEBUG // DEBUG
-    qDebug( "CLogic::resetMemory" );
-#endif // DEBUG
+    // Cancel, if no action required
+    if ( mOperationType.size() == 0 )
+        return( mRightArg );
 
-    // Reset Stored Value
-    mStoredValue.clear( );
+    onUpdateOutput();
 
+    mRightArg = countOneGroup( mOutput );
+
+    onCalculationDone();
+
+    return mRightArg;
 }
 
 void CLogic::resetLogic( ) noexcept {
@@ -369,9 +404,9 @@ void CLogic::resetLogic( ) noexcept {
 #endif // DEBUG
 
     // Reset Values
-    mLeftArg = "";
+    mLeftArg.clear();
     mRightArg = "";
-    mOutput = "0";
-    mOperationType = NONE_OPERATION_TYPE;
+    mOutput = "";
+    mOperationType.clear();
 
 }

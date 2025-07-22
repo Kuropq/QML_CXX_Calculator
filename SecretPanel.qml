@@ -65,23 +65,26 @@ Window {
             signal clicked
             onClicked: secretPanel.visible = false
 
+            FontLoader { id: sansFamili; source: "C:\\develop\\QT\\SimplrCalculator\\OpenSans-VariableFont_wdth,wght.ttf" }
+
             // Button text
             Text {
                 // ID
                 id: text
+                // Text
+                text: "EXIT"
                 // Anchors
                 anchors.horizontalCenter: parent.horizontalCenter
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
-                // Size
-                height: parent.textHeight
-                font.pixelSize: parent.textHeight
+                // Aligment
                 horizontalAlignment: Text.AlignHCenter
                 verticalAlignment: Text.AlignVCenter
-                // Text
-                text: "EXIT"
+                // Font
                 color: Utils.lowerBackgroundColor()
-                font.family: Utils.fontFamily()
+                height: parent.textHeight
+                font.pixelSize: parent.textHeight
+                font.family: sansFamili.name
             } // Button text
 
             // Mous area
